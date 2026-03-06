@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-custom { border-radius: 15px; border: none; transition: 0.3s; }
+        .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .fund-value { font-size: 2.5rem; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-dark">Investor Dashboard</h1>
+        <p class="text-muted">Active Investment Tracking System</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-7">
+            <div class="card card-custom bg-primary text-white p-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title opacity-75">Remaining Fund to Invest</h5>
+                    <div class="fund-value" th:text="${#numbers.formatCurrency(remaining)}">$10,000,000.00</div>
+                    <p class="mt-2 mb-0 opacity-75">* Starting value: $10 million USD</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card card-custom bg-white p-4 shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <h5 class="card-title text-dark mb-3">Add to Fund</h5>
+                    <form th:action="@{/add-fund}" method="post" class="input-group">
+                        <input type="number" name="amount" class="form-control" placeholder="Amount ($)" required min="1">
+                        <button type="submit" class="btn btn-success">Increase Fund</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Active Investments</h3>
+        <div class="dropdown">
+            <button class="btn btn-outline-dark dropdown-toggle" type="button" id="sortMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort Investments
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortMenu">
+                <li><a class="dropdown-item" href="/?sort=name">Alphabetical (A-Z)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/?sort=AmountAsc">Amount: Low to High</a></li>
+                <li><a class="dropdown-item" href="/?sort=AmountDesc">Amount: High to Low</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card card-custom shadow-sm overflow-hidden mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-secondary">
+                <tr>
+                    <th class="ps-4">Investment Name</th>
+                    <th>Amount Invested</th>
+                    <th class="text-end pe-4">Update Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(investments)}">
+                    <td colspan="3" class="text-center py-5 text-muted">No investments found. Start by adding one below!</td>
+                </tr>
+                <tr th:each="inv : ${investments}">
+                    <td class="ps-4">
+                        <span class="fw-bold text-dark" th:text="${inv.name}">Company Name</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark fs-6 border" th:text="${#numbers.formatCurrency(inv.amount)}">$0.00</span>
+                    </td>
+                    <td class="pe-4">
+                        <form th:action="@{/update}" method="post" class="d-flex justify-content-end gap-2">
+                            <input type="hidden" name="id" th:value="${inv.id}">
+                            <input type="text" name="name" class="form-control form-control-sm" style="max-width: 150px;" placeholder="New name" required>
+                            <button type="submit" class="btn btn-sm btn-warning">Rename</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card card-custom border-0 shadow-sm bg-white p-4">
+        <div class="card-body">
+            <h4 class="fw-bold mb-4">Create New Investment</h4>
+            <form th:action="@{/add}" method="post" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Asset Name</label>
+                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0" placeholder="e.g. Apple Stocks, Bitcoin" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Investment Amount ($)</label>
+                    <input type="number" name="amount" class="form-control form-control-lg bg-light border-0" placeholder="0.00" required min="1">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm">Invest Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:if="${param.addSuccess}">
+    setTimeout(function() {
+        alert("Notification: A new investment was made 2 minutes ago!");
+    }, 120000); // 2 dəqiqə (120,000 ms)
+</script>
+
+</body>
+</html>
