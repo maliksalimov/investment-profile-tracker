@@ -9,6 +9,7 @@
         .card-custom { border-radius: 15px; border: none; transition: 0.3s; }
         .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .fund-value { font-size: 2.5rem; font-weight: bold; }
+        .hover-primary:hover { color: #0d6efd !important; text-decoration: underline !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -25,7 +26,7 @@
                 <div class="card-body">
                     <h5 class="card-title opacity-75">Remaining Fund to Invest</h5>
                     <div class="fund-value" th:text="${#numbers.formatCurrency(remaining)}">$10,000,000.00</div>
-                    <p class="mt-2 mb-0 opacity-75">* Starting value: $10 million USD</p>
+                    <p class="mt-2 mb-0 opacity-75">* Calculator automatically deducts total invested</p>
                 </div>
             </div>
         </div>
@@ -64,26 +65,32 @@
                 <tr>
                     <th class="ps-4">Investment Name</th>
                     <th>Amount Invested</th>
-                    <th class="text-end pe-4">Update Name</th>
+                    <th class="text-end pe-4">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(investments)}">
-                    <td colspan="3" class="text-center py-5 text-muted">No investments found. Start by adding one below!</td>
+                    <td colspan="4" class="text-center py-5 text-muted">No investments found. Start by adding one below!</td>
                 </tr>
                 <tr th:each="inv : ${investments}">
                     <td class="ps-4">
-                        <span class="fw-bold text-dark" th:text="${inv.name}">Company Name</span>
+                        <a th:href="@{/details(id=${inv.id})}" class="text-decoration-none fw-bold text-dark hover-primary" th:text="${inv.name}">Company Name</a>
                     </td>
                     <td>
                         <span class="badge bg-light text-dark fs-6 border" th:text="${#numbers.formatCurrency(inv.amount)}">$0.00</span>
                     </td>
                     <td class="pe-4">
-                        <form th:action="@{/update}" method="post" class="d-flex justify-content-end gap-2">
-                            <input type="hidden" name="id" th:value="${inv.id}">
-                            <input type="text" name="name" class="form-control form-control-sm" style="max-width: 150px;" placeholder="New name" required>
-                            <button type="submit" class="btn btn-sm btn-warning">Rename</button>
-                        </form>
+                        <div class="d-flex justify-content-end gap-2">
+                            <form th:action="@{/update}" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="id" th:value="${inv.id}">
+                                <input type="text" name="newName" class="form-control form-control-sm" style="max-width: 120px;" placeholder="New name" required>
+                                <button type="submit" class="btn btn-sm btn-warning">Rename</button>
+                            </form>
+                            <form th:action="@{/delete}" method="post" onsubmit="return confirm('Are you sure you want to delete this investment?');">
+                                <input type="hidden" name="id" th:value="${inv.id}">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>

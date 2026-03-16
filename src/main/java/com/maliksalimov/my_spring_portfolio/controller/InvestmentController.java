@@ -33,7 +33,7 @@ public class InvestmentController {
     @PostMapping("/add")
     public String addInvestment(@ModelAttribute Investment investment) {
         portfolioService.saveInvestment(investment);
-        return "redirect:/";
+        return "redirect:/?addSuccess=true";
     }
 
     @PostMapping("/add-fund")
@@ -45,6 +45,19 @@ public class InvestmentController {
     @PostMapping("/update")
     public String updateInvestment(@RequestParam Long id, @RequestParam String newName) {
         portfolioService.updateInvestment(id, newName);
+        return "redirect:/";
+    }
+
+    @GetMapping("/details")
+    public String details(@RequestParam Long id, Model model) {
+        Investment investment = portfolioService.getInvestmentById(id);
+        model.addAttribute("investment", investment);
+        return "details";
+    }
+
+    @PostMapping("/delete")
+    public String deleteInvestment(@RequestParam Long id) {
+        portfolioService.deleteInvestment(id);
         return "redirect:/";
     }
 }

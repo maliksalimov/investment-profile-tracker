@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-custom { border-radius: 15px; border: none; }
+        .detail-label { font-weight: bold; color: #6c757d; text-transform: uppercase; font-size: 0.8rem; }
+        .detail-value { font-size: 1.2rem; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="mb-4">
+                <a href="/" class="btn btn-outline-secondary">&larr; Back to Dashboard</a>
+            </div>
+
+            <div class="card card-custom shadow-sm p-4">
+                <div class="card-body">
+                    <h2 class="fw-bold mb-4 border-bottom pb-2">Investment Details</h2>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-label">Asset Name</div>
+                            <div class="detail-value text-dark fw-bold" th:text="${investment.name}">Asset Name</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Total Amount Invested</div>
+                            <div class="detail-value text-primary fw-bold" th:text="${#numbers.formatCurrency(investment.amount)}">$0.00</div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="detail-label">Internal ID</div>
+                            <div class="detail-value text-muted" th:text="${investment.id}">#123</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-label">Currency</div>
+                            <div class="detail-value text-muted">USD ($)</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <h5 class="fw-bold mb-3">Update Investment Name</h5>
+                        <form th:action="@{/update}" method="post" class="row g-3">
+                            <input type="hidden" name="id" th:value="${investment.id}">
+                            <div class="col-auto">
+                                <input type="text" name="newName" class="form-control" th:value="${investment.name}" required>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-warning">Update Name</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <h5 class="fw-bold mb-3 text-danger">Danger Zone</h5>
+                        <form th:action="@{/delete}" method="post" onsubmit="return confirm('Are you sure you want to delete this investment?');">
+                            <input type="hidden" name="id" th:value="${investment.id}">
+                            <button type="submit" class="btn btn-danger">Delete Investment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
