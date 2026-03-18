@@ -10,9 +10,26 @@
         .card-custom:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .fund-value { font-size: 2.5rem; font-weight: bold; }
         .hover-primary:hover { color: #0d6efd !important; text-decoration: underline !important; }
+        .alert-fixed { position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     </style>
 </head>
 <body class="bg-light">
+
+<!-- Success/Error Messages -->
+<div th:if="${error}" class="alert alert-danger alert-dismissible fade show alert-fixed" role="alert">
+    <strong>Error!</strong> <span th:text="${error}">Error message</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div th:if="${success}" class="alert alert-success alert-dismissible fade show alert-fixed" role="alert">
+    <strong>Success!</strong> <span th:text="${success}">Success message</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div th:if="${param.addSuccess}" class="alert alert-success alert-dismissible fade show alert-fixed" role="alert">
+    <strong>Success!</strong> Investment added successfully! You'll receive a notification in 2 minutes.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
 <div class="container py-5">
     <div class="text-center mb-5">
@@ -35,7 +52,7 @@
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h5 class="card-title text-dark mb-3">Add to Fund</h5>
                     <form th:action="@{/add-fund}" method="post" class="input-group">
-                        <input type="number" name="amount" class="form-control" placeholder="Amount ($)" required min="1">
+                        <input type="number" name="amount" class="form-control" placeholder="Amount ($)" required min="0.01" step="0.01">
                         <button type="submit" class="btn btn-success">Increase Fund</button>
                     </form>
                 </div>
@@ -70,7 +87,7 @@
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(investments)}">
-                    <td colspan="4" class="text-center py-5 text-muted">No investments found. Start by adding one below!</td>
+                    <td colspan="3" class="text-center py-5 text-muted">No investments found. Start by adding one below!</td>
                 </tr>
                 <tr th:each="inv : ${investments}">
                     <td class="ps-4">
@@ -81,11 +98,7 @@
                     </td>
                     <td class="pe-4">
                         <div class="d-flex justify-content-end gap-2">
-                            <form th:action="@{/update}" method="post" class="d-flex gap-1">
-                                <input type="hidden" name="id" th:value="${inv.id}">
-                                <input type="text" name="newName" class="form-control form-control-sm" style="max-width: 120px;" placeholder="New name" required>
-                                <button type="submit" class="btn btn-sm btn-warning">Rename</button>
-                            </form>
+                            <a th:href="@{/details(id=${inv.id})}" class="btn btn-sm btn-outline-primary">Details</a>
                             <form th:action="@{/delete}" method="post" onsubmit="return confirm('Are you sure you want to delete this investment?');">
                                 <input type="hidden" name="id" th:value="${inv.id}">
                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
@@ -102,16 +115,24 @@
         <div class="card-body">
             <h4 class="fw-bold mb-4">Create New Investment</h4>
             <form th:action="@{/add}" method="post" class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <label class="form-label text-muted small fw-bold text-uppercase">Asset Name</label>
-                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0" placeholder="e.g. Apple Stocks, Bitcoin" required>
+                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0" placeholder="e.g. Apple Stocks" required>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label text-muted small fw-bold text-uppercase">Investment Amount ($)</label>
-                    <input type="number" name="amount" class="form-control form-control-lg bg-light border-0" placeholder="0.00" required min="1">
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Category</label>
+                    <input type="text" name="category" class="form-control form-control-lg bg-light border-0" placeholder="e.g. Stocks, Crypto">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Amount ($)</label>
+                    <input type="number" name="amount" class="form-control form-control-lg bg-light border-0" placeholder="0.00" required min="0.01" step="0.01">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm">Invest Now</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm" id="investBtn">Invest</button>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-muted small fw-bold text-uppercase">Description</label>
+                    <textarea name="description" class="form-control bg-light border-0" rows="2" placeholder="Optional details..."></textarea>
                 </div>
             </form>
         </div>
@@ -121,9 +142,41 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script th:if="${param.addSuccess}">
+    // 2-minute notification
     setTimeout(function() {
-        alert("Notification: A new investment was made 2 minutes ago!");
-    }, 120000); // 2 dəqiqə (120,000 ms)
+        const toastHTML = `
+            <div class="toast align-items-center text-white bg-info border-0 alert-fixed" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        📢 Reminder: A new investment was made 2 minutes ago!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', toastHTML);
+        const toastElement = document.querySelector('.toast:last-child');
+        const toast = new bootstrap.Toast(toastElement, { delay: 10000 });
+        toast.show();
+    }, 120000); // 2 minutes
+</script>
+
+<script>
+    // Prevent double submission
+    document.querySelector('form[action="/add"]').addEventListener('submit', function() {
+        const btn = document.getElementById('investBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-fixed');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
 </script>
 
 </body>

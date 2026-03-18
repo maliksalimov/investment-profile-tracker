@@ -37,12 +37,26 @@
 
                     <div class="row mt-3">
                         <div class="col-md-6">
-                            <div class="detail-label">Internal ID</div>
-                            <div class="detail-value text-muted" th:text="${investment.id}">#123</div>
+                            <div class="detail-label">Investment ID</div>
+                            <div class="detail-value text-muted" th:text="'#' + ${investment.id}">#123</div>
                         </div>
                         <div class="col-md-6">
-                            <div class="detail-label">Currency</div>
-                            <div class="detail-value text-muted">USD ($)</div>
+                            <div class="detail-label">Created Date</div>
+                            <div class="detail-value text-muted" th:text="${#temporals.format(investment.createdAt, 'MMM dd, yyyy HH:mm')}">Jan 01, 2025 12:00</div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" th:if="${investment.category != null and !investment.category.isEmpty()}">
+                        <div class="col-md-6">
+                            <div class="detail-label">Category</div>
+                            <div class="detail-value text-muted" th:text="${investment.category}">Stocks</div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" th:if="${investment.description != null and !investment.description.isEmpty()}">
+                        <div class="col-12">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value text-muted" th:text="${investment.description}">Investment description</div>
                         </div>
                     </div>
 
@@ -50,18 +64,19 @@
                         <h5 class="fw-bold mb-3">Update Investment Name</h5>
                         <form th:action="@{/update}" method="post" class="row g-3">
                             <input type="hidden" name="id" th:value="${investment.id}">
-                            <div class="col-auto">
-                                <input type="text" name="newName" class="form-control" th:value="${investment.name}" required>
+                            <div class="col-md-8">
+                                <input type="text" name="newName" class="form-control" th:value="${investment.name}" required minlength="1" maxlength="100">
                             </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-warning">Update Name</button>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-warning w-100">Update Name</button>
                             </div>
                         </form>
                     </div>
 
                     <div class="mt-4 pt-4 border-top">
                         <h5 class="fw-bold mb-3 text-danger">Danger Zone</h5>
-                        <form th:action="@{/delete}" method="post" onsubmit="return confirm('Are you sure you want to delete this investment?');">
+                        <p class="text-muted small">Deleting this investment will return the funds to your available balance.</p>
+                        <form th:action="@{/delete}" method="post" onsubmit="return confirm('Are you sure you want to delete this investment? The funds will be returned to your available balance.');">
                             <input type="hidden" name="id" th:value="${investment.id}">
                             <button type="submit" class="btn btn-danger">Delete Investment</button>
                         </form>
