@@ -1,68 +1,103 @@
-# Welcome to My Spring Portfolio
-***
+# Investment Profile Tracker
 
-## Task
-Build a web application to track an investor's active investments with a $10 million starting fund. The challenge is to ensure proper fund management, prevent over-investing, and provide real-time calculations of remaining funds while maintaining data integrity.
+Investment Profile Tracker is a Spring Boot web application for managing active investments against a centralized fund. It is designed for reliable portfolio tracking, safe transaction handling, and clear financial visibility through a server-rendered dashboard.
 
-## Description
-Developed a full-stack Spring Boot application with:
-- **Backend validation** to prevent investments exceeding available funds
-- **Real-time fund calculator** that automatically deducts total invested amount
-- **Sorting capabilities** for investments (alphabetical, amount ascending/descending)
-- **CRUD operations** for managing investments (Create, Read, Update, Delete)
-- **2-minute notifications** after new investments are created
-- **Responsive Bootstrap UI** with error handling and user feedback
-- **Caching** for improved performance
-- **Transaction management** for data consistency
+## Overview
 
-Tech Stack: Java 17, Spring Boot, PostgreSQL, Thymeleaf, Bootstrap 5, Gradle
+The application starts with a default fund balance of $10,000,000 and supports full investment lifecycle operations. It validates incoming data, protects against over-allocation, and keeps remaining balance calculations consistent.
 
-## Installation
-**Prerequisites:** Java 17+, Gradle (or use ./gradlew), PostgreSQL
+## Core Capabilities
+
+- Create, view, update, and delete investments
+- Track remaining fund balance in real time
+- Prevent investments that exceed available capital
+- Add capital to the fund with validation
+- Sort investments by name or amount
+- View detailed investment information
+- Execute delayed asynchronous notifications for newly created investments
+- Use transaction boundaries and locking for consistency
+
+## Technology Stack
+
+- Java 17
+- Spring Boot 3.2
+- Spring MVC + Thymeleaf
+- Spring Data JPA
+- Hibernate Validation
+- H2 (development) and PostgreSQL (production)
+- Gradle
+
+## Project Structure
+
+- `src/main/java/.../controller`: HTTP request handling and page navigation
+- `src/main/java/.../service`: business rules, transactions, and notifications
+- `src/main/java/.../repository`: JPA repositories and aggregate queries
+- `src/main/java/.../model`: persistence entities and validation annotations
+- `src/main/resources/templates`: Thymeleaf views
+- `src/main/resources/application-dev.yaml`: development profile configuration
+- `src/main/resources/application-prod.yaml`: production profile configuration
+
+## Prerequisites
+
+- Java 17 or newer
+- Git
+- PostgreSQL (for production profile)
+
+Gradle is included via wrapper scripts, so no global Gradle installation is required.
+
+## Getting Started
 
 ```bash
-# Clone repository
-git clone <repository-url>
+git clone https://github.com/maliksalimov/investment-profile-tracker.git
 cd my_spring_portfolio
-
-# Configure database (or use environment variables)
-# Edit src/main/resources/application-prod.yaml with your DB credentials
-
-# Create database
-psql -U postgres -c "CREATE DATABASE portfolio;"
-
-# Build and run
-./gradlew build
+./gradlew clean build
 ./gradlew bootRun
 ```
 
-## Usage
-Access the application at `http://localhost:8080`
+Application URL:
 
-**Main Features:**
-- View dashboard with all investments and remaining funds
-- Add new investments (validates sufficient funds)
-- Sort investments by name or amount
-- Click investment name to view details
-- Update investment names
-- Delete investments (funds return to pool)
-- Add more money to the fund
-
-```bash
-# Run tests
-./gradlew test
-
-# Package for deployment
-./gradlew bootJar
-
-# Deploy to Heroku
-heroku create my-portfolio-app
-heroku addons:create heroku-postgresql:mini
-git push heroku main
+```text
+http://localhost:8080
 ```
 
-### The Core Team
-**Malik Salimov** - Full Stack Developer
+## Profile Configuration
 
-<span><i>Made at <a href='https://qwasar.io'>Qwasar SV -- Software Engineering School</a></i></span>
-<span><img alt='Qwasar SV -- Software Engineering School's Logo' src='https://storage.googleapis.com/qwasar-public/qwasar-logo_50x50.png' width='20px' /></span>
+Development profile uses H2 file storage and enables additional SQL/web diagnostics.
+
+Production profile uses PostgreSQL and environment-based credentials:
+
+- `DATABASE_URL`
+- `DATABASE_USER`
+- `DATABASE_PASSWORD`
+- `PORT` (optional; defaults to 8080)
+
+To run with a specific profile:
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev'
+./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+
+## Build, Test, and Package
+
+```bash
+./gradlew test
+./gradlew bootJar
+```
+
+Generated artifact:
+
+```text
+build/libs/my-spring-portfolio.jar
+```
+
+## Deployment Notes
+
+- Ensure PostgreSQL is reachable from the runtime environment
+- Set required production environment variables
+- Start with the `prod` profile in hosted environments
+- Keep `ddl-auto` strategy aligned with your migration policy before production rollout
+
+## Author
+
+Malik Salimov
